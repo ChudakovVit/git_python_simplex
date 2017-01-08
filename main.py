@@ -1,7 +1,8 @@
 import sys
 from PyQt5.QtWidgets import (QWidget, QPushButton, QInputDialog, QApplication, QTextBrowser)
 
-objective_global = ""
+objective_function = ""
+constrains = ""
 
 class Simplex(QWidget):
 
@@ -39,12 +40,15 @@ class Simplex(QWidget):
         text, ok = QInputDialog.getText(self, 'Input Dialog', 'Enter objective function:')
         if ok:
             self.objective_line.setText(str(text))
-            objective_global = str(text)
+            global objective_function
+            objective_function = str(text)
 
     def constrainsDialog(self):
         text, ok = QInputDialog.getText(self, 'Input Dialog', 'Enter constrains:')
         if ok:
             self.constrains_line.setText(str(text))
+            global constrains
+            constrains = str(text)
 
     def solveBtn(self):
         self.solve_btn = QPushButton('Solve', self)
@@ -57,7 +61,7 @@ class Simplex(QWidget):
         self.solve_line.move(200, 100)
 
     def solveProblem(self):
-        self.solve_line.setText("hello")
+        self.solve_line.setText(objective_function + " " + constrains)
 
 
 if __name__ == '__main__':
