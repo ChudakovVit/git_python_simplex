@@ -1,6 +1,6 @@
 import sys
 from scipy.optimize import linprog
-from PyQt5.QtWidgets import (QWidget, QPushButton, QInputDialog, QApplication, QTextBrowser)
+from PyQt5.QtWidgets import *
 
 class Simplex(QWidget):
 
@@ -20,6 +20,7 @@ class Simplex(QWidget):
 
     def objectiveBtn(self):
         self.objective_btn = QPushButton('Objective function', self)
+        self.objective_btn.setToolTip("Press to enter the objective function coefficients")
         self.objective_btn.move(20, 20)
         self.objective_btn.clicked.connect(self.objectiveDialog)
         self.objective_line = QTextBrowser(self)
@@ -28,6 +29,7 @@ class Simplex(QWidget):
 
     def constrainsBtn(self):
         self.constrains_btn = QPushButton('Constrains', self)
+        self.constrains_btn.setToolTip("Press to enter the constrains coefficients")
         self.constrains_btn.move(20, 60)
         self.constrains_btn.clicked.connect(self.constrainsDialog)
         self.constrains_line = QTextBrowser(self)
@@ -36,10 +38,10 @@ class Simplex(QWidget):
 
     def objectiveDialog(self):
         text, ok = QInputDialog.getText(self, 'Input Dialog', 'Enter objective function:')
-        if ok:
-            self.objective_line.setText(str(text))
+        if ok and self.checkObjectiveFunction(str(text)):
             global objective_function
             objective_function = [int(elem) for elem in text.split(',')]
+            self.objective_line.setText(str(text))
 
     def constrainsDialog(self):
         text, ok = QInputDialog.getText(self, 'Input Dialog', 'Enter constrains:')
@@ -50,15 +52,18 @@ class Simplex(QWidget):
 
     def solveBtn(self):
         self.solve_btn = QPushButton('Solve', self)
+        self.solve_btn.setToolTip("Press to solve optimization problem")
         self.solve_btn.move(20, 100)
         self.solve_btn.clicked.connect(self.solveProblem)
 
         """test textBox"""
         self.solve_line = QTextBrowser(self)
-        self.solve_line.setGeometry(250, 28, 250, 28)
+        self.solve_line.setGeometry(250, 180, 250, 180)
         self.solve_line.move(200, 100)
 
     def solveProblem(self):
+        objective_function = None
+        constrains = None
         print("ob_f ", objective_function)
         print("cons ", constrains)
         c = [-2, -1, -3, -1]
@@ -68,12 +73,22 @@ class Simplex(QWidget):
         x1_bnds = (None, None)
         x2_bnds = (None, None)
         x3_bnds = (None, None)
-        res = linprog(objective_function, constrains, b, bounds=(x0_bnds, x1_bnds, x2_bnds, x3_bnds))
+        res = linprog(c, A, b, bounds=(x0_bnds, x1_bnds, x2_bnds, x3_bnds))
         print("res ", res)
-        self.solve_line.setText(str(res.fun))
 
+        self.solve_line.setText(str(res))
 
-if __name__ == '__main__':
+    def checkObjectiveFunction(self, text):
+        try:
+            temp = [int(elem) for elem in text.split(',')]
+        except Exception:
+            return False
+        return True
+
+def main():
     app = QApplication(sys.argv)
     simplex = Simplex()
     sys.exit(app.exec_())
+
+if __name__ == '__main__':
+    main()
